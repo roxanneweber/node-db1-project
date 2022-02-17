@@ -1,8 +1,9 @@
+const Accounts = require('./accounts-model')
+
 exports.checkAccountPayload = (req, res, next) => {
 	console.log('checkAccountPayload middleware');
 	next();
-	// Note: you can either write "manual" validation logic
-	// or use the Yup library (not currently installed)
+
 };
 
 exports.checkAccountNameUnique = (req, res, next) => {
@@ -10,7 +11,17 @@ exports.checkAccountNameUnique = (req, res, next) => {
 	next();
 };
 
-exports.checkAccountId = (req, res, next) => {
-	console.log('checkAccountId middleware');
-	next();
+exports.checkAccountId = async (req, res, next) => {
+	try {
+		const account = await Accounts.getById(req.params.id)
+		if (!account) {
+			next({ status: 404, message: 'the account was not found'})
+		} else {
+			req.account = account
+			next()
+		}
+	} catch {
+		next(err);
+	}
+	
 };
